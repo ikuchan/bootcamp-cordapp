@@ -11,76 +11,76 @@ import org.junit.Test;
 import static net.corda.testing.node.NodeTestUtils.transaction;
 
 public class ContractTests {
-//    private final TestIdentity alice = new TestIdentity(new CordaX500Name("Alice", "", "GB"));
-//    private final TestIdentity bob = new TestIdentity(new CordaX500Name("Bob", "", "GB"));
-//    private MockServices ledgerServices = new MockServices(new TestIdentity(new CordaX500Name("TestId", "", "GB")));
-//    private TokenState tokenState = new TokenState(alice.getParty(), bob.getParty(), 1);
+    private final TestIdentity alice = new TestIdentity(new CordaX500Name("Alice", "", "GB"));
+    private final TestIdentity bob = new TestIdentity(new CordaX500Name("Bob", "", "GB"));
+    private MockServices ledgerServices = new MockServices(new TestIdentity(new CordaX500Name("TestId", "", "GB")));
+    private TokenState tokenState = new TokenState(alice.getParty(), bob.getParty(), 1);
 
-//    @Test
-//    public void tokenContractImplementsContract() {
-//        assert(new TokenContract() instanceof Contract);
-//    }
+    @Test
+    public void tokenContractImplementsContract() {
+        assert(new TokenContract() instanceof Contract);
+    }
 
-//    @Test
-//    public void tokenContractRequiresZeroInputsInTheTransaction() {
-//        transaction(ledgerServices, tx -> {
-//            // Has an input, will fail.
-//            tx.input(TokenContract.ID, tokenState);
-//            tx.output(TokenContract.ID, tokenState);
-//            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
-//            tx.fails();
-//            return null;
-//        });
+    @Test
+    public void tokenContractRequiresZeroInputsInTheTransaction() {
+        transaction(ledgerServices, tx -> {
+            // Has an input, will fail.
+            tx.input(TokenContract.ID, tokenState);
+            tx.output(TokenContract.ID, tokenState);
+            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
+            tx.fails();
+            return null;
+        });
+
+        transaction(ledgerServices, tx -> {
+            // Has no input, will verify.
+            tx.output(TokenContract.ID, tokenState);
+            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
+            tx.verifies();
+            return null;
+        });
+    }
 //
-//        transaction(ledgerServices, tx -> {
-//            // Has no input, will verify.
-//            tx.output(TokenContract.ID, tokenState);
-//            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
-//            tx.verifies();
-//            return null;
-//        });
-//    }
+    @Test
+    public void tokenContractRequiresOneOutputInTheTransaction() {
+        transaction(ledgerServices, tx -> {
+            // Has two outputs, will fail.
+            tx.output(TokenContract.ID, tokenState);
+            tx.output(TokenContract.ID, tokenState);
+            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
+            tx.fails();
+            return null;
+        });
 
-//    @Test
-//    public void tokenContractRequiresOneOutputInTheTransaction() {
-//        transaction(ledgerServices, tx -> {
-//            // Has two outputs, will fail.
-//            tx.output(TokenContract.ID, tokenState);
-//            tx.output(TokenContract.ID, tokenState);
-//            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
-//            tx.fails();
-//            return null;
-//        });
+        transaction(ledgerServices, tx -> {
+            // Has one output, will verify.
+            tx.output(TokenContract.ID, tokenState);
+            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
+            tx.verifies();
+            return null;
+        });
+    }
+
+    @Test
+    public void tokenContractRequiresOneCommandInTheTransaction() {
+        transaction(ledgerServices, tx -> {
+            tx.output(TokenContract.ID, tokenState);
+            // Has two commands, will fail.
+            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
+            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
+            tx.fails();
+            return null;
+        });
+
+        transaction(ledgerServices, tx -> {
+            tx.output(TokenContract.ID, tokenState);
+            // Has one command, will verify.
+            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
+            tx.verifies();
+            return null;
+        });
+    }
 //
-//        transaction(ledgerServices, tx -> {
-//            // Has one output, will verify.
-//            tx.output(TokenContract.ID, tokenState);
-//            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
-//            tx.verifies();
-//            return null;
-//        });
-//    }
-
-//    @Test
-//    public void tokenContractRequiresOneCommandInTheTransaction() {
-//        transaction(ledgerServices, tx -> {
-//            tx.output(TokenContract.ID, tokenState);
-//            // Has two commands, will fail.
-//            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
-//            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
-//            tx.fails();
-//            return null;
-//        });
-//
-//        transaction(ledgerServices, tx -> {
-//            tx.output(TokenContract.ID, tokenState);
-//            // Has one command, will verify.
-//            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
-//            tx.verifies();
-//            return null;
-//        });
-//    }
-
 //    @Test
 //    public void tokenContractRequiresTheTransactionsOutputToBeATokenState() {
 //        transaction(ledgerServices, tx -> {
@@ -99,7 +99,7 @@ public class ContractTests {
 //            return null;
 //        });
 //    }
-
+//
 //    @Test
 //    public void tokenContractRequiresTheTransactionsOutputToHaveAPositiveAmount() {
 //        TokenState zeroTokenState = new TokenState(alice.getParty(), bob.getParty(), 0);
@@ -138,7 +138,7 @@ public class ContractTests {
 //            return null;
 //        });
 //    }
-
+//
 //    @Test
 //    public void tokenContractRequiresTheTransactionsCommandToBeAnIssueCommand() {
 //        transaction(ledgerServices, tx -> {
@@ -157,7 +157,7 @@ public class ContractTests {
 //            return null;
 //        });
 //    }
-
+//
 //    @Test
 //    public void tokenContractRequiresTheIssuerToBeARequiredSignerInTheTransaction() {
 //        TokenState tokenStateWhereBobIsIssuer = new TokenState(bob.getParty(), alice.getParty(), 1);
