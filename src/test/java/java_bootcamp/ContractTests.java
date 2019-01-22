@@ -81,117 +81,117 @@ public class ContractTests {
         });
     }
 //
-//    @Test
-//    public void tokenContractRequiresTheTransactionsOutputToBeATokenState() {
-//        transaction(ledgerServices, tx -> {
-//            // Has wrong output type, will fail.
-//            tx.output(TokenContract.ID, new DummyState());
-//            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
-//            tx.fails();
-//            return null;
-//        });
+    @Test
+    public void tokenContractRequiresTheTransactionsOutputToBeATokenState() {
+        transaction(ledgerServices, tx -> {
+            // Has wrong output type, will fail.
+            tx.output(TokenContract.ID, new DummyState());
+            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
+            tx.fails();
+            return null;
+        });
+
+        transaction(ledgerServices, tx -> {
+            // Has correct output type, will verify.
+            tx.output(TokenContract.ID, tokenState);
+            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
+            tx.verifies();
+            return null;
+        });
+    }
+
+    @Test
+    public void tokenContractRequiresTheTransactionsOutputToHaveAPositiveAmount() {
+        TokenState zeroTokenState = new TokenState(alice.getParty(), bob.getParty(), 0);
+        TokenState negativeTokenState = new TokenState(alice.getParty(), bob.getParty(), -1);
+        TokenState positiveTokenState = new TokenState(alice.getParty(), bob.getParty(), 2);
+
+        transaction(ledgerServices, tx -> {
+            // Has zero-amount TokenState, will fail.
+            tx.output(TokenContract.ID, zeroTokenState);
+            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
+            tx.fails();
+            return null;
+        });
+
+        transaction(ledgerServices, tx -> {
+            // Has negative-amount TokenState, will fail.
+            tx.output(TokenContract.ID, negativeTokenState);
+            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
+            tx.fails();
+            return null;
+        });
+
+        transaction(ledgerServices, tx -> {
+            // Has positive-amount TokenState, will verify.
+            tx.output(TokenContract.ID, tokenState);
+            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
+            tx.verifies();
+            return null;
+        });
+
+        transaction(ledgerServices, tx -> {
+            // Also has positive-amount TokenState, will verify.
+            tx.output(TokenContract.ID, positiveTokenState);
+            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
+            tx.verifies();
+            return null;
+        });
+    }
 //
-//        transaction(ledgerServices, tx -> {
-//            // Has correct output type, will verify.
-//            tx.output(TokenContract.ID, tokenState);
-//            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
-//            tx.verifies();
-//            return null;
-//        });
-//    }
-//
-//    @Test
-//    public void tokenContractRequiresTheTransactionsOutputToHaveAPositiveAmount() {
-//        TokenState zeroTokenState = new TokenState(alice.getParty(), bob.getParty(), 0);
-//        TokenState negativeTokenState = new TokenState(alice.getParty(), bob.getParty(), -1);
-//        TokenState positiveTokenState = new TokenState(alice.getParty(), bob.getParty(), 2);
-//
-//        transaction(ledgerServices, tx -> {
-//            // Has zero-amount TokenState, will fail.
-//            tx.output(TokenContract.ID, zeroTokenState);
-//            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
-//            tx.fails();
-//            return null;
-//        });
-//
-//        transaction(ledgerServices, tx -> {
-//            // Has negative-amount TokenState, will fail.
-//            tx.output(TokenContract.ID, negativeTokenState);
-//            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
-//            tx.fails();
-//            return null;
-//        });
-//
-//        transaction(ledgerServices, tx -> {
-//            // Has positive-amount TokenState, will verify.
-//            tx.output(TokenContract.ID, tokenState);
-//            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
-//            tx.verifies();
-//            return null;
-//        });
-//
-//        transaction(ledgerServices, tx -> {
-//            // Also has positive-amount TokenState, will verify.
-//            tx.output(TokenContract.ID, positiveTokenState);
-//            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
-//            tx.verifies();
-//            return null;
-//        });
-//    }
-//
-//    @Test
-//    public void tokenContractRequiresTheTransactionsCommandToBeAnIssueCommand() {
-//        transaction(ledgerServices, tx -> {
-//            // Has wrong command type, will fail.
-//            tx.output(TokenContract.ID, tokenState);
-//            tx.command(alice.getPublicKey(), DummyCommandData.INSTANCE);
-//            tx.fails();
-//            return null;
-//        });
-//
-//        transaction(ledgerServices, tx -> {
-//            // Has correct command type, will verify.
-//            tx.output(TokenContract.ID, tokenState);
-//            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
-//            tx.verifies();
-//            return null;
-//        });
-//    }
-//
-//    @Test
-//    public void tokenContractRequiresTheIssuerToBeARequiredSignerInTheTransaction() {
-//        TokenState tokenStateWhereBobIsIssuer = new TokenState(bob.getParty(), alice.getParty(), 1);
-//
-//        transaction(ledgerServices, tx -> {
-//            // Issuer is not a required signer, will fail.
-//            tx.output(TokenContract.ID, tokenState);
-//            tx.command(bob.getPublicKey(), new TokenContract.Commands.Issue());
-//            tx.fails();
-//            return null;
-//        });
-//
-//        transaction(ledgerServices, tx -> {
-//            // Issuer is also not a required signer, will fail.
-//            tx.output(TokenContract.ID, tokenStateWhereBobIsIssuer);
-//            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
-//            tx.fails();
-//            return null;
-//        });
-//
-//        transaction(ledgerServices, tx -> {
-//            // Issuer is a required signer, will verify.
-//            tx.output(TokenContract.ID, tokenState);
-//            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
-//            tx.verifies();
-//            return null;
-//        });
-//
-//        transaction(ledgerServices, tx -> {
-//            // Issuer is also a required signer, will verify.
-//            tx.output(TokenContract.ID, tokenStateWhereBobIsIssuer);
-//            tx.command(bob.getPublicKey(), new TokenContract.Commands.Issue());
-//            tx.verifies();
-//            return null;
-//        });
-//    }
+    @Test
+    public void tokenContractRequiresTheTransactionsCommandToBeAnIssueCommand() {
+        transaction(ledgerServices, tx -> {
+            // Has wrong command type, will fail.
+            tx.output(TokenContract.ID, tokenState);
+            tx.command(alice.getPublicKey(), DummyCommandData.INSTANCE);
+            tx.fails();
+            return null;
+        });
+
+        transaction(ledgerServices, tx -> {
+            // Has correct command type, will verify.
+            tx.output(TokenContract.ID, tokenState);
+            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
+            tx.verifies();
+            return null;
+        });
+    }
+
+    @Test
+    public void tokenContractRequiresTheIssuerToBeARequiredSignerInTheTransaction() {
+        TokenState tokenStateWhereBobIsIssuer = new TokenState(bob.getParty(), alice.getParty(), 1);
+
+        transaction(ledgerServices, tx -> {
+            // Issuer is not a required signer, will fail.
+            tx.output(TokenContract.ID, tokenState);
+            tx.command(bob.getPublicKey(), new TokenContract.Commands.Issue());
+            tx.fails();
+            return null;
+        });
+
+        transaction(ledgerServices, tx -> {
+            // Issuer is also not a required signer, will fail.
+            tx.output(TokenContract.ID, tokenStateWhereBobIsIssuer);
+            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
+            tx.fails();
+            return null;
+        });
+
+        transaction(ledgerServices, tx -> {
+            // Issuer is a required signer, will verify.
+            tx.output(TokenContract.ID, tokenState);
+            tx.command(alice.getPublicKey(), new TokenContract.Commands.Issue());
+            tx.verifies();
+            return null;
+        });
+
+        transaction(ledgerServices, tx -> {
+            // Issuer is also a required signer, will verify.
+            tx.output(TokenContract.ID, tokenStateWhereBobIsIssuer);
+            tx.command(bob.getPublicKey(), new TokenContract.Commands.Issue());
+            tx.verifies();
+            return null;
+        });
+    }
 }
