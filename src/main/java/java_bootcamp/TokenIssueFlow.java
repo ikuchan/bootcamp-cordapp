@@ -39,13 +39,19 @@ public class TokenIssueFlow extends FlowLogic<SignedTransaction> {
          *         TODO 1 - Create our TokenState to represent on-ledger tokens!
          * ===========================================================================*/
         // We create our new TokenState.
-        TokenState tokenState = null;
+        TokenState tokenState = new TokenState(issuer,owner,amount);
+        TokenContract.Commands.Issue command = new TokenContract.Commands.Issue();
+
 
         /* ============================================================================
          *      TODO 3 - Build our token issuance transaction to update the ledger!
          * ===========================================================================*/
         // We build our transaction.
-        TransactionBuilder transactionBuilder = null;
+        TransactionBuilder transactionBuilder = new TransactionBuilder();
+        transactionBuilder.setNotary(notary);
+        transactionBuilder.addOutputState(tokenState, TokenContract.ID);
+        transactionBuilder.addCommand(new TokenContract.Commands.Issue(),issuer.getOwningKey());
+
 
         /* ============================================================================
          *          TODO 2 - Write our TokenContract to control token issuance!
@@ -54,9 +60,13 @@ public class TokenIssueFlow extends FlowLogic<SignedTransaction> {
         transactionBuilder.verify(getServiceHub());
 
         // We sign the transaction with our private key, making it immutable.
-        SignedTransaction signedTransaction = getServiceHub().signInitialTransaction(transactionBuilder);
+//        SignedTransaction signedTransaction = getServiceHub().signInitialTransaction(transactionBuilder);
+//        FlowSession session = initiateFlow(owner);
+//        session.send(signedTransaction);
+//
+//        SignedTransaction bothSignedTransaction =  session.receive(signedTransaction.getClass()).unwrap(it -> it);
 
         // We get the transaction notarised and recorded automatically by the platform.
-        return subFlow(new FinalityFlow(signedTransaction));
+        return subFlow(new FinalityFlow(bothSignedTransaction));
     }
 }
