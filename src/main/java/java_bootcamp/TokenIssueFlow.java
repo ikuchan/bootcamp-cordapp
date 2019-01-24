@@ -60,13 +60,13 @@ public class TokenIssueFlow extends FlowLogic<SignedTransaction> {
         transactionBuilder.verify(getServiceHub());
 
         // We sign the transaction with our private key, making it immutable.
-//        SignedTransaction signedTransaction = getServiceHub().signInitialTransaction(transactionBuilder);
+        SignedTransaction signedTransaction = getServiceHub().signInitialTransaction(transactionBuilder);
 //        FlowSession session = initiateFlow(owner);
 //        session.send(signedTransaction);
 //
 //        SignedTransaction bothSignedTransaction =  session.receive(signedTransaction.getClass()).unwrap(it -> it);
 
         // We get the transaction notarised and recorded automatically by the platform.
-        return subFlow(new FinalityFlow(bothSignedTransaction));
+        return subFlow(new FinalityFlow(signedTransaction));
     }
 }
